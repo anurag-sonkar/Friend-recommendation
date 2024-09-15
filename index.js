@@ -6,8 +6,12 @@ const app = express();
 const db = require("./config/dbConnection");
 const port = process.env.PORT || 5000;
 
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({extended:true}))
 app.use(cors());
 
 
@@ -15,6 +19,8 @@ app.use(cors());
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 
 // Server Start
 app.listen(port, () => {
