@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest } = require('../controllers/userControllers');
+const { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest, handleGetFriendList, handleUnfriend  } = require('../controllers/userControllers');
 const authenticate = require('../middlewares/checkAuthentication');
 
 // auth
@@ -8,5 +8,7 @@ router.get('/search', authenticate , handleUserSearch);
 router.post('/send-request', authenticate , handleSendFriendRequest);
 router.post('/accept-request',authenticate, handleAcceptFriendRequest);
 router.post('/reject-request',authenticate, handleRejectFriendRequest);
+router.get('/friends', authenticate, handleGetFriendList);  // To get the friend list
+router.post('/unfriend', authenticate ,handleUnfriend);  // To unfriend a user
 
 module.exports = router;

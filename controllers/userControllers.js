@@ -107,4 +107,50 @@ const handleRejectFriendRequest = async(req,res)=>{
     }
 }
 
-module.exports = { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest }
+/* 
+getFriendList : basic findById then populate friends -> username , email
+Unfriend a User: 
+1.Remove the friend from the users friends array.
+2.Remove the user from the friends friendds array.
+*/
+
+const handleGetFriendList = async(req,res)=>{
+    const userId = req.user._id;
+
+    try {
+        const user = await User.findById(userId).populate('friends', 'username email');
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        res.status(200).json({ friends: user.friends });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching friend list' });
+    }
+}
+
+
+const handleUnfriend = async(req,res)=>{
+    const { friendId } = req.body;
+    const userId = req.user._id;
+
+    try {
+        const user = await User.findById(userId);
+        const friend = await User.findById(friendId);
+
+        if (!user || !friend) return res.status(404).json({ message: 'User not found' });
+
+        // Remove friend from user's friends array
+        user.friends = user.friends.filter(id => id.toString() !== friendId.toString());
+
+        // Remove user from friend's friends array
+        friend.friends = friend.friends.filter(id => id.toString() !== userId.toString());
+
+        await user.save();
+        await friend.save();
+
+        res.status(200).json({ message: 'Unfriended successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error unfriending user' });
+    }
+}
+
+module.exports = { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest, handleGetFriendList, handleUnfriend }
