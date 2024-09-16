@@ -3,16 +3,23 @@ const User = require('../models/user')
 const handleUserSearch = async (req, res) => {
 
     const { query } = req.query;
+    const userId = req.user._id
+
+    // adding pagination
+    const limit = req.query.limit || 6; // number of results per pagge
+    const page = req.query.page || 1; // Current page from queryyy
+    const skip = (page - 1) * limit;
 
     if (!query) return res.status(400).json({ message: 'Search query is required' });
 
     try {
         const users = await User.find({
+            _id: { $ne: userId }, // Exclude the current user
             $or: [
                 { username: { $regex: query, $options: 'i' } }, // Case-insensitive search : i
                 { email: { $regex: query, $options: 'i' } }
             ]
-        }).select('_id username email');
+        }).limit(limit).skip(skip).select('_id username email');
 
         res.status(200).json({ users });
     } catch (error) {
@@ -163,6 +170,11 @@ const getFriendRecommendations = async (req, res) => {
         
         const userFriends = currentUser.friends.map(friend => friend._id.toString());
         console.log("userFriends", userFriends)
+
+        if(userFriends.length === 0){
+            res.status(200).json({ });
+
+        }
         
         // Find all users except the current user
         const allUsers = await User.find({ _id: { $ne: userId } });
