@@ -13,10 +13,13 @@ const handleUserSignup = async (req, res) => {
 
         const user = await User.create({ username, email, password });
         const token = await user.generateAuthtoken();
-        // console.log(user)
+        console.log(user)
 
         res.status(201).json({
-            token, user, message: "register successfully"
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            token
         });
     } catch (error) {
         res.status(500).json({ message: `${error.message}` });
@@ -48,7 +51,12 @@ const handleUserLogin = async (req, res) => {
         // Generating token
         const token = await user.generateAuthtoken();
 
-        res.status(200).json({ token, user, message: "Login successful" });
+        res.status(201).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            token
+        });
     } catch (error) {
         res.status(500).json({ message: `Server error: ${error.message}` });
     }
