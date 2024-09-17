@@ -14,7 +14,7 @@ const userRoutes = require('./routes/user');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: true, // Allow all origins
+    origin: "https://66e991a48b1f930d47bc66e6--super-cheesecake-589752.netlify.app/", // Allow all origins
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 

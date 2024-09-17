@@ -13,7 +13,6 @@ const handleUserSignup = async (req, res) => {
 
         const user = await User.create({ username, email, password });
         const token = await user.generateAuthtoken();
-        console.log(user)
 
         return res.status(201).json({
             _id: user._id,
