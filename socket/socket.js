@@ -8,7 +8,7 @@ const server = createServer(app)
 
 const io = new Server(server , {
     cors: {
-            origin: "*", // frontend's origin - allowing all
+            origin: "*", // frontend's origin - allowing all    
             methods: ["GET", "POST"]
         }
 })
