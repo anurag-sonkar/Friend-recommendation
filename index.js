@@ -14,7 +14,7 @@ const userRoutes = require('./routes/user');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-    origin: '*', // Allow all origins
+    origin: 'https://66e9782ea6799b198d32ed07--super-cheesecake-589752.netlify.app', // Allow all origins
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -26,5 +26,6 @@ app.use('/user', userRoutes);
 
 // Server Start
 server.listen(PORT, () => {
-    console.log(`Server running on port ${BASE_URL}:${PORT}`);
+    // console.log(`Server running on port ${BASE_URL}:${PORT}`);
+    console.log(`Server running on port http://localhost:${PORT}`);
 });
