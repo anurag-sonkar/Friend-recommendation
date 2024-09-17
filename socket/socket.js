@@ -8,7 +8,7 @@ const server = createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://66e991a48b1f930d47bc66e6--super-cheesecake-589752.netlify.app/", // frontend's origin - allowing all    
+        origin: "*", // frontend's origin - allowing all    
         methods: ['GET', 'POST', 'PUT', 'DELETE']
     }
 })
