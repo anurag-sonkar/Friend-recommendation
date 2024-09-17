@@ -1,5 +1,5 @@
 const User = require('../models/user')
-
+const { io, getReceiverSocketId } = require('../socket/socket')
 // const handleSendFriendRequest = async (req, res) => {
 //     const { recipientId } = req.body; // friend id 
 //     const senderId = req.user._id;
@@ -48,16 +48,15 @@ const handleSendFriendRequest = async (req, res) => {
 
         recipient.friendRequests.push(sender._id);
 
-        // Use req.userSocketMap to access the socket map (now a Map)
-        const recipientSocketId = req.userSocketMap.get(recipientId);
+        await recipient.save();
+        // 
+        const recipientSocketId = getReceiverSocketId(recipientId);
         if (recipientSocketId) {
-            req.io.to(recipientSocketId).emit('friend-request', {
-                message: `You have a new friend request from ${sender.username}`,
-                senderId
+            io.to(recipientSocketId).emit('friend-request', {
+                notification : sender
             });
         }
 
-        await recipient.save();
         res.status(200).json({ message: 'Friend request sent successfully' });
     } catch (error) {
         console.log(error);
@@ -218,7 +217,7 @@ const getFriendRecommendations = async (req, res) => {
         // console.log("userFriends", userFriends)
 
         if(userFriends.length === 0){
-            res.status(200).json({ });
+            return res.status(200).json({});
 
         }
         
@@ -258,6 +257,19 @@ const getFriendRecommendations = async (req, res) => {
     }
 };
 
+const getNotifications = async(req,res)=>{
+    const userId = req.user._id
+    try {
+        const response = await User.findById(userId).populate('friendRequests', 'username email')
+        return res.status(200).json(response.friendRequests)
+    } catch (error) {
+        console.log(error.message)
+        return res.status(400).json({message : error.message})
+        
+    }
+
+}
 
 
-module.exports = { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest, handleGetFriendList, handleUnfriend, getFriendRecommendations }
+
+module.exports = { handleUserSearch, handleSendFriendRequest, handleAcceptFriendRequest, handleRejectFriendRequest, handleGetFriendList, handleUnfriend, getFriendRecommendations, getNotifications }
