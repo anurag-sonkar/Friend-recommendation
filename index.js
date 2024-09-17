@@ -11,12 +11,14 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
 app.use(cors({
     origin: "*", // Allow all origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+
 }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
 
 // roues
 app.use('/auth', authRoutes);
