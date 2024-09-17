@@ -8,7 +8,7 @@ const handleUserSignup = async (req, res) => {
     if (!username || !email || !password) return res.status(400).json({ message: "username / email / password is required to register" })
 
     try {
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ email: email });
         if (userExists) return res.status(400).json({ message: 'user already exists' });
 
         const user = await User.create({ username, email, password });
@@ -37,7 +37,7 @@ const handleUserLogin = async (req, res) => {
 
     try {
         // Check if user exists
-        const user = await User.findOne({ email }).select('+password');
+        const user = await User.findOne({ email: email }).select('+password');
         if (!user) {
             return res.status(400).json({ message: "User not found" });
         }
