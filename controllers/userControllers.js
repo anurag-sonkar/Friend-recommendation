@@ -1,5 +1,72 @@
 const User = require('../models/user')
 
+// const handleSendFriendRequest = async (req, res) => {
+//     const { recipientId } = req.body; // friend id 
+//     const senderId = req.user._id;
+
+//     try {
+//         const recipient = await User.findById(recipientId);
+//         const sender = await User.findById(senderId);
+
+//         if (!recipient) return res.status(404).json({ message: 'User not found' });
+//         if (recipient.friendRequests.includes(sender._id)) return res.status(400).json({ message: 'Friend request already sent' });
+
+//         recipient.friendRequests.push(sender._id);
+
+//         // Use req.userSocketMap to access the socket map
+//         const userSocketMap = req.userSocketMap;
+//         console.log("userSocketMap", userSocketMap);
+
+//         // Check if the recipient is online (i.e., has a socket ID)
+//         const recipientSocketId = userSocketMap[recipientId];
+//         if (recipientSocketId) {
+//             // Use req.io to emit the socket event
+//             req.io.to(recipientSocketId).emit('friend-request', {
+//                 message: `You have a new friend request from ${sender.username}`,
+//                 senderId
+//             });
+//         }
+
+//         await recipient.save();
+//         res.status(200).json({ message: 'Friend request sent successfully' });
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+const handleSendFriendRequest = async (req, res) => {
+    const { recipientId } = req.body;
+    const senderId = req.user._id;
+
+    try {
+        const recipient = await User.findById(recipientId);
+        const sender = await User.findById(senderId);
+
+        if (!recipient) return res.status(404).json({ message: 'User not found' });
+        if (recipient.friendRequests.includes(sender._id)) return res.status(400).json({ message: 'Friend request already sent' });
+
+        recipient.friendRequests.push(sender._id);
+
+        // Use req.userSocketMap to access the socket map (now a Map)
+        const recipientSocketId = req.userSocketMap.get(recipientId);
+        if (recipientSocketId) {
+            req.io.to(recipientSocketId).emit('friend-request', {
+                message: `You have a new friend request from ${sender.username}`,
+                senderId
+            });
+        }
+
+        await recipient.save();
+        res.status(200).json({ message: 'Friend request sent successfully' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
 const handleUserSearch = async (req, res) => {
 
     const { query } = req.query;
@@ -24,27 +91,6 @@ const handleUserSearch = async (req, res) => {
         res.status(200).json({ users });
     } catch (error) {
         res.status(500).json({ message: 'Error searching users' });
-    }
-}
-
-
-const handleSendFriendRequest = async(req,res)=>{
-    const { recipientId } = req.body; // friend id 
-    const senderId = req.user._id;
-
-    try {
-        const recipient = await User.findById(recipientId);
-        // const sender = await User.findById(senderId);
-
-        if (!recipient) return res.status(404).json({ message: 'User not found' });
-        if (recipient.friendRequests.includes(senderId)) return res.status(400).json({ message: 'Friend request already sent' });
-
-        recipient.friendRequests.push(senderId);
-        await recipient.save();
-
-        res.status(200).json({ message: 'Friend request sent successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error sending friend request' });
     }
 }
 
@@ -169,7 +215,7 @@ const getFriendRecommendations = async (req, res) => {
         if (!currentUser) return res.status(404).json({ message: 'User not found' });
         
         const userFriends = currentUser.friends.map(friend => friend._id.toString());
-        console.log("userFriends", userFriends)
+        // console.log("userFriends", userFriends)
 
         if(userFriends.length === 0){
             res.status(200).json({ });
@@ -178,7 +224,7 @@ const getFriendRecommendations = async (req, res) => {
         
         // Find all users except the current user
         const allUsers = await User.find({ _id: { $ne: userId } });
-        console.log("allUsers" , allUsers)
+        // console.log("allUsers" , allUsers)
 
         let recommendations = [];
 
@@ -189,7 +235,7 @@ const getFriendRecommendations = async (req, res) => {
             // Find mutual friends
             const mutualFriends = user.friends.filter(friendId => userFriends.includes(friendId).toString());
 
-            console.log("mutualFriends", mutualFriends)
+            // console.log("mutualFriends", mutualFriends)
 
             if (mutualFriends.length > 0) {
                 recommendations.push({
@@ -200,7 +246,7 @@ const getFriendRecommendations = async (req, res) => {
             }
         }
 
-        console.log("recommendations", recommendations)
+        // console.log("recommendations", recommendations)
 
 
         // Sort recommendations by number of mutual friends
