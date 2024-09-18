@@ -2,7 +2,6 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs')
 
 const handleUserSignup = async (req, res) => {
-    console.log(req.body)
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) return res.status(400).json({ message: "username / email / password is required to register" })
@@ -28,7 +27,6 @@ const handleUserSignup = async (req, res) => {
 
 const handleUserLogin = async (req, res) => {
     const { email, password } = req.body
-    console.log(req.body)
 
     if (!email || !password) {
         return res.status(400).json({ message: "email and password are required" });

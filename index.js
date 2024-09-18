@@ -28,5 +28,4 @@ app.use('/user', userRoutes);
 // Server Start
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${BASE_URL}:${PORT}`);
-    // console.log(`Server running on port http://localhost:${PORT}`);
 });
